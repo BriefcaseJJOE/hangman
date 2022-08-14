@@ -1,99 +1,83 @@
 import random
-from this import d
 
-life = 10
-
-exit = "x"
-end = ""
-with open ("hangman.txt") as f :
-    words = f.read().split("\n")
-
-answer = words[random.randint(0,len(words)+1)]
-
-lower_answer = answer.lower()
-
-words_use = []  
-
-display = []
-
-join_display = ""
-
-for i in range(len(lower_answer)):
-    display.append("_")
+from helper_functions import load_vocab, check, get_index
 
 
-def check(letter,answer):
-    answer = str(answer)
-    for i in range(len(answer)):
-        if letter == answer[i]:
-            return True
-
-def get_index(guess,answer):
-    dex = []
-    for i in range(len(answer)):
-        if answer[i] == guess:
-            dex.append (i)
-            
-    return dex
+# global variable for list of total vocab of possible answers
+# (global variable means available in global namespace, ie any block of code can access this)
+words = load_vocab()
 
 
-while end != exit: 
-    print("WELCOME TO HANG MAN") 
-    #print(lower_answer)#DEBUG
-    while life > 1 :
-        
-        
-        answer = words
-        
-        print("\n")
-        print("Guess Word")
-        print(display)
-        print('letters used')
-        print(words_use)
-        guess = str(input("enter letter:"))
-        
-        
-        
-        #check if guessed letter is in answer
-        verify = check(guess,lower_answer)
-        if verify == True:
+def start_fresh_game(num_lives=10):
+    '''
+    This function does:
+        1. sets a lowercase random word as answer
+        2. sets display as a list of "_", with length equals to len(answer)
+    and returns [ answer, display, num_lives, [] ]
+    '''
 
-            # get index of the letters in answers
-            index = (get_index(guess,lower_answer))
+    answer = random.choice(words).lower()
+    display = ['_'] * len(answer)
+    words_used = []
 
-            # remove under score in display and insert guessed letters
-            for i in range(len(index)):
-                display.pop(index[i])
-                display.insert(index[i],guess)
+    return [answer, display, num_lives, words_used]
 
-            join_display = "".join(display)
 
-            words_use.append(guess)
-            
-            
-            # check if word is completed
-            if lower_answer == join_display:
-                
-                print("congratulation you won!!!")  
-                
-                break
-        #minus one life if letter guessed is not in answer    
-        else:
-            life -= 1
-            words_use.append(guess)
-            print("wrong ",life, " life remaining")
-            
-    ### reset
-    print("the answer is ",lower_answer," try again!")
-    life = 10
-    words_use = []  
-    display = []
-    answer = words[random.randint(0,1372)]
-    lower_answer = answer.lower()
-    for i in range(len(lower_answer)):
-        display.append("_")
-    answer = words[random.randint(0,1372)]
+def run_game():
+    user_game_choice = ''
+    end_game_char = 'x'
     
-    ### reset
+    while user_game_choice != end_game_char: 
+        print("WELCOME TO HANG MAN") 
+        #print(answer)#DEBUG
 
-    end = input("enter 'x' to exit any other key to play again:")    
+        # start new game
+        answer, display, life, words_used = start_fresh_game()
+
+        while life > 1 :
+            
+            print("\n")
+            print("Guess Word")
+            print(display)
+            print('letters used')
+            print(words_used)
+            guess = str(input("enter letter:"))
+            
+            
+            #check if guessed letter is in answer
+            verify = check(guess,answer)
+            if verify == True:
+
+                # get index of the letters in answers
+                index = (get_index(guess,answer))
+
+                # remove under score in display and insert guessed letters
+                for i in range(len(index)):
+                    display.pop(index[i])
+                    display.insert(index[i],guess)
+
+                join_display = "".join(display)
+
+                words_used.append(guess)
+                
+                
+                # check if word is completed
+                if answer == join_display:
+                    
+                    print("congratulation you won!!!")  
+                    
+                    break
+            #minus one life if letter guessed is not in answer    
+            else:
+                life -= 1
+                words_used.append(guess)
+                print("wrong ",life, " life remaining")
+        
+        # user fails - print correct answer and prompt retry
+        print("the answer is ",answer," try again!")
+
+        user_game_choice = input("enter 'x' to exit any other key to play again:")    
+
+
+if __name__ == '__main__':
+    run_game()
