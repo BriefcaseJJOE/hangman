@@ -1,6 +1,6 @@
 import random
 
-from helper_functions import load_vocab, check, get_index
+from utils.helper_functions import load_vocab, check, get_index
 
 
 # global variable for list of total vocab of possible answers
